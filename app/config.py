@@ -18,22 +18,24 @@ def _i(name: str, default: int) -> int:
 
 @dataclass(frozen=True)
 class Settings:
-    tcgplayer_public_key: str = os.getenv("TCGPLAYER_PUBLIC_KEY", "")
-    tcgplayer_private_key: str = os.getenv("TCGPLAYER_PRIVATE_KEY", "")
-
+    # eBay Browse API
     ebay_client_id: str = os.getenv("EBAY_CLIENT_ID", "")
     ebay_client_secret: str = os.getenv("EBAY_CLIENT_SECRET", "")
     ebay_marketplace_id: str = os.getenv("EBAY_MARKETPLACE_ID", "EBAY_US")
 
+    # App
     cache_ttl_seconds: int = _i("CACHE_TTL_SECONDS", 1800)
-    default_ebay_limit: int = _i("DEFAULT_EBAY_LIMIT", 30)
+    default_ebay_limit_live: int = _i("DEFAULT_EBAY_LIMIT_LIVE", 30)
+    default_ebay_limit_sold: int = _i("DEFAULT_EBAY_LIMIT_SOLD", 60)
 
-    ebay_fee_rate: float = _f("EBAY_FEE_RATE", 0.1325)
-    tcg_seller_fee_rate: float = _f("TCG_SELLER_FEE_RATE", 0.105)
-    risk_buffer_rate: float = _f("RISK_BUFFER_RATE", 0.07)
+    # Economics assumptions
+    ebay_fee_rate: float = _f("EBAY_FEE_RATE", 0.1325)        # selling fee estimate
+    risk_buffer_rate: float = _f("RISK_BUFFER_RATE", 0.07)    # condition / returns / slippage
     default_shipping_usd: float = _f("DEFAULT_SHIPPING_USD", 4.50)
 
+    # Filters
     min_confidence: float = _f("MIN_CONFIDENCE", 0.55)
-    min_roi: float = _f("MIN_ROI", 0.10)
+    min_discount: float = _f("MIN_DISCOUNT", 0.15)           # live listing must be >= 15% under sold median
+    min_profit_usd: float = _f("MIN_PROFIT_USD", 5.00)       # expected profit threshold
 
 settings = Settings()

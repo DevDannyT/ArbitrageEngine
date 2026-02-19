@@ -41,14 +41,31 @@ class EbayClient:
         self.cache.set(cache_key, token)
         return token
 
-    async def search(self, q: str, limit: int = 30) -> Dict[str, Any]:
+    async def search(self, q: str, limit: int = 30, sold: bool = False) -> Dict[str, Any]:
+        """
+        Uses eBay Browse API search.
+        sold=False => live listings
+        sold=True  => sold items (if your eBay access supports it via filter=soldItems:true)
+        """
         token = await self._get_access_token()
 
         headers = {
             "Authorization": f"Bearer {token}",
             "X-EBAY-C-MARKETPLACE-ID": self.marketplace_id,
         }
-        params = {"q": q, "limit": min(limit, 50)}
+
+        filters: List[str] = []
+        # these are safe defaults; tweak later
+        filters.append("deliveryCountry:US")
+        if sold:
+            filters.append("soldItems:true")
+
+        params = {
+            "q": q,
+            "limit": min(limit, 50),
+        }
+        if filters:
+            params["filter"] = ",".join(filters)
 
         async with httpx.AsyncClient(timeout=20) as client:
             resp = await client.get(EBAY_BROWSE_SEARCH, headers=headers, params=params)
@@ -58,7 +75,9 @@ class EbayClient:
         items: List[Dict[str, Any]] = []
         for it in data.get("itemSummaries", [])[:limit]:
             price = it.get("price") or {}
-            ship = (it.get("shippingOptions") or [{}])[0].get("shippingCost") if it.get("shippingOptions") else None
+            ship_obj = None
+            if it.get("shippingOptions"):
+                ship_obj = (it.get("shippingOptions") or [{}])[0].get("shippingCost")
 
             price_value = None
             ship_value = None
@@ -66,9 +85,10 @@ class EbayClient:
                 price_value = float(price.get("value")) if price.get("value") is not None else None
             except Exception:
                 price_value = None
-            if ship:
+
+            if ship_obj:
                 try:
-                    ship_value = float(ship.get("value")) if ship.get("value") is not None else None
+                    ship_value = float(ship_obj.get("value")) if ship_obj.get("value") is not None else None
                 except Exception:
                     ship_value = None
 
@@ -83,4 +103,4 @@ class EbayClient:
                 "shipping_value": ship_value,
             })
 
-        return {"source": "ebay", "query": q, "items": items}
+        return {"source": "ebay", "query": q, "sold": sold, "items": items}

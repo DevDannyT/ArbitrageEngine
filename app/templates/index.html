@@ -7,28 +7,30 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>CardCompare Flip Radar</h1>
-    <p class="sub">Search a card, then see potential flips (buy eBay → sell TCGplayer).</p>
+    <h1>Flip Radar</h1>
+    <p class="sub">Find undervalued eBay listings by comparing live prices to sold comps.</p>
 
     <div class="card">
-      <div class="row">
-        <label>Game</label>
-        <select id="game">
-          <option value="pokemon">Pokémon</option>
-          <option value="mtg">MTG</option>
-        </select>
-      </div>
+      <form method="GET" action="/results">
+        <div class="row">
+          <label>Game</label>
+          <select name="game" id="game">
+            <option value="pokemon">Pokémon</option>
+            <option value="mtg">MTG</option>
+          </select>
+        </div>
 
-      <div class="row">
-        <label>Search</label>
-        <input id="q" placeholder="e.g. Charizard 4/102, Black Lotus" />
-        <button id="btnSearch">Search</button>
-      </div>
+        <div class="row">
+          <label>Query</label>
+          <input name="q" id="q" placeholder="e.g. Charizard 4/102 holo, Black Lotus" />
+          <button type="submit">Run Flip Radar</button>
+        </div>
+      </form>
 
-      <div id="results" class="results"></div>
+      <div class="muted">
+        Tip: include a set name or card number if possible. It makes matching way cleaner.
+      </div>
     </div>
   </div>
-
-  <script src="/static/app.js"></script>
 </body>
 </html>
