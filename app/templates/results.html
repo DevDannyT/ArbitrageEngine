@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Flip Radar Results</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="/">← New search</a>
+    <h1>Flip Radar</h1>
+
+    <div class="card">
+      <div class="meta"><strong>Card:</strong> {{ card.name }}</div>
+      <div class="meta"><strong>Set:</strong> {{ card.set or "—" }} <strong>Number:</strong> {{ card.number or "—" }}</div>
+      <div class="meta"><strong>Sell baseline (TCG market):</strong> {{ sell_price or "—" }}</div>
+      <div class="meta"><strong>eBay query:</strong> {{ ebay_query }}</div>
+      <div class="meta2">Filters: confidence ≥ {{ min_confidence }}, ROI ≥ {{ min_roi }}</div>
+    </div>
+
+    <div class="card">
+      <h2>Top opportunities</h2>
+
+      {% if not ranked %}
+        <div class="muted">No opportunities found with current filters. Try a different card or loosen MIN_CONFIDENCE / MIN_ROI in .env.</div>
+      {% endif %}
+
+      {% for r in ranked[:20] %}
+        <div class="opp">
+          <div class="oppTop">
+            <div class="oppTitle">
+              <a href="{{ r.item.itemWebUrl }}" target="_blank">{{ r.item.title }}</a>
+            </div>
+            <div class="pill">Score {{ "%.2f"|format(r.score) }}</div>
+          </div>
+
+          <div class="oppGrid">
+            <div>
+              <div class="k">Buy (eBay)</div>
+              <div class="v">${{ "%.2f"|format(r.economics.buy_price) }} + ship ${{ "%.2f"|format(r.economics.shipping) }}</div>
+            </div>
+            <div>
+              <div class="k">Sell (TCG)</div>
+              <div class="v">${{ "%.2f"|format(r.economics.sell_price) }}</div>
+            </div>
+            <div>
+              <div class="k">Profit</div>
+              <div class="v">${{ "%.2f"|format(r.economics.profit) }}</div>
+            </div>
+            <div>
+              <div class="k">ROI</div>
+              <div class="v">{{ "%.1f"|format(r.economics.roi * 100) }}%</div>
+            </div>
+            <div>
+              <div class="k">Confidence</div>
+              <div class="v">{{ "%.2f"|format(r.match.confidence) }}</div>
+            </div>
+          </div>
+
+          <details class="details">
+            <summary>Why it matched</summary>
+            <ul>
+              {% for rr in r.match.reasons %}
+                <li>
+                  <span class="{{ 'ok' if rr.ok else 'bad' }}">
+                    {{ rr.signal }}:
+                    {% if rr.value is defined %}{{ rr.value }}{% endif %}
+                    {% if rr.hits is defined %} ({{ rr.hits }}/{{ rr.total }}){% endif %}
+                    {% if rr.ok %} ✅{% else %} ❌{% endif %}
+                  </span>
+                </li>
+              {% endfor %}
+            </ul>
+          </details>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <h2>TCGplayer pricing (raw)</h2>
+      {% if tcg_prices.prices %}
+        <table>
+          <thead>
+            <tr><th>Variant</th><th>Market</th><th>Low</th><th>Mid</th><th>High</th></tr>
+          </thead>
+          <tbody>
+            {% for p in tcg_prices.prices %}
+              <tr>
+                <td>{{ p.subTypeName }}</td>
+                <td>{{ p.marketPrice }}</td>
+                <td>{{ p.lowPrice }}</td>
+                <td>{{ p.midPrice }}</td>
+                <td>{{ p.highPrice }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted">No pricing returned.</div>
+      {% endif %}
+    </div>
+
+  </div>
+</body>
+</html>

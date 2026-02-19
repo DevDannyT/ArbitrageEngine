@@ -1,15 +1,34 @@
 <!doctype html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>CardCompare Flip Radar</title>
-    <link rel="stylesheet" href="/static/styles.css">
+  <meta charset="utf-8" />
+  <title>CardCompare Flip Radar</title>
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="wrap">
-        <h1>CardCompare Flip Radar</h1>
-        <p>Flip Radar MVP is running.</p>
-        <p>Next step: connect APIs and matching engine.</p>
+  <div class="wrap">
+    <h1>CardCompare Flip Radar</h1>
+    <p class="sub">Search a card, then see potential flips (buy eBay → sell TCGplayer).</p>
+
+    <div class="card">
+      <div class="row">
+        <label>Game</label>
+        <select id="game">
+          <option value="pokemon">Pokémon</option>
+          <option value="mtg">MTG</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label>Search</label>
+        <input id="q" placeholder="e.g. Charizard 4/102, Black Lotus" />
+        <button id="btnSearch">Search</button>
+      </div>
+
+      <div id="results" class="results"></div>
     </div>
+  </div>
+
+  <script src="/static/app.js"></script>
 </body>
 </html>
