@@ -1,0 +1,12 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #f1f5f9;
+}
+.wrap {
+    max-width: 900px;
+    margin: 60px auto;
+}
+h1 {
+    font-size: 2rem;
+}
